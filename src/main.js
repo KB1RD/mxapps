@@ -3,12 +3,16 @@ import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
 
+import VueI18n from 'vue-i18n'
+import { languages, default_locale } from './i18n/index.js'
+
 import { BootstrapVue } from 'bootstrap-vue'
 
 import { setupWorkers, state } from './worker-link'
 
 Vue.config.productionTip = false
 
+Vue.use(VueI18n)
 Vue.use(BootstrapVue)
 
 const ActiveGenerators = Symbol('ActiveRpcGenerators')
@@ -111,7 +115,13 @@ Vue.mixin({
   }
 })
 
+const i18n = new VueI18n({
+  locale: default_locale,
+  messages: Object.assign(languages)
+})
+
 new Vue({
+  i18n,
   router,
   render: h => h(App)
 }).$mount('#app')
