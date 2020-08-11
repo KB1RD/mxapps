@@ -1,22 +1,46 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+
+import LoginDialog from '../views/login/LoginDialog'
+import AccountSelector from '../views/login/AccountSelector'
+import NewAccount from '../views/login/NewAccount'
+import PasswordLogin from '../views/login/PasswordLogin'
+import ConnectionWorking from '../views/login/ConnectionWorking'
+
+import RoomList from '../views/RoomList'
+import SidebarView from '../views/SidebarView'
+import { state } from '../worker-link'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    component: SidebarView,
+    beforeEnter (to, from, next) {
+      if (!state.channel) {
+        return next({ path: '/login', query: { redirect_to: to.path } })
+      }
+      if (from.query.account && !to.query.account) {
+        to.query.account = from.query.account
+        next(to)
+      } else {
+        next()
+      }
+    },
+    children: [
+      { path: '', component: RoomList }
+    ]
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/login',
+    component: LoginDialog,
+    children: [
+      { path: '', component: AccountSelector },
+      { path: 'new', component: NewAccount },
+      { path: 'pass', component: PasswordLogin },
+      { path: 'to/:id', component: ConnectionWorking }
+    ]
   }
 ]
 

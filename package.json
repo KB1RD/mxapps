@@ -3,15 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "destroy-cache": "rm -rf node_modules/.cache",
+    "serve": "yarn run destroy-cache; vue-cli-service serve",
+    "build": "yarn run destroy-cache; vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "bootstrap": "^4.5.2",
+    "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
+    "mx-host-core-worker": "^0.1.0",
     "register-service-worker": "^1.7.1",
+    "rpcchannel": "^0.2.4",
     "vue": "^2.6.11",
-    "vue-router": "^3.2.0"
+    "vue-i18n": "^8.20.0",
+    "vue-router": "^3.2.0",
+    "vue-simple-svg": "1.3.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",
@@ -29,6 +36,9 @@
     "eslint-plugin-vue": "^6.2.2",
     "less": "^3.0.4",
     "less-loader": "^5.0.0",
-    "vue-template-compiler": "^2.6.11"
+    "node-sass": "^4.14.1",
+    "sass-loader": "^9.0.3",
+    "vue-template-compiler": "^2.6.11",
+    "worker-loader": "^3.0.1"
   }
 }
