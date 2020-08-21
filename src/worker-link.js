@@ -22,11 +22,37 @@ const worker_setup_funcs = [
   }
 ]
 
+function timeout (promise, time) {
+  return new Promise((resolve, reject) => {
+    let done = false
+    setTimeout(() => {
+      if (!done) {
+        reject(new Error('Timed out'))
+      }
+      done = true
+    }, time)
+    promise.then(
+      (d) => {
+        if (!done) {
+          resolve(d)
+        }
+        done = true
+      },
+      (e) => {
+        if (!done) {
+          reject(e)
+        }
+        done = true
+      }
+    )
+  })
+}
+
 async function setupWorkers () {
   for (const { name, func } of worker_setup_funcs) {
     let port
     try {
-      port = await func()
+      port = await timeout(func(), 5000)
       if (!port) {
         throw new Error('Port is `undefined`')
       }
@@ -38,9 +64,9 @@ async function setupWorkers () {
       const chan = new rpc.RpcChannel((m, x) => port.postMessage(m, x))
       port.onmessage = (e) => chan.receive(e.data)
 
-      await chan.call_obj.net.kb1rd.services.requestServices(
+      await timeout(chan.call_obj.net.kb1rd.services.requestServices(
         { id: ['net', 'kb1rd', 'mxbindings'], versions: [[0, 1]] }
-      )
+      ), 5000)
 
       state.channel = chan
       state.active = true

@@ -5,7 +5,7 @@ module.exports = {
     config
       .plugin('copy-webpack-plugin')
       .use(CopyPlugin, [[
-        { from: 'test', to: '' }
+        { from: 'node_modules/mx-host-core-worker/dist/', to: '' }
       ]])
   }
 }
