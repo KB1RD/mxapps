@@ -1,1 +1,10 @@
-{}
+{
+  "permissions/unknown": "Unknown permission",
+  "permissions/unknown-desc": "mxapps doesn't know about this permission. This app may require a newer or modified version of mxapps. If you enable it, it may work on other clients, but will do nothing on this one.",
+  "permissions/title/a.openroom.state.get": "Read room state",
+  "permissions/desc/a.openroom.state.get": "Allows the application to read state in rooms that you open with it, except for membership, power level, invite, and server ACL state.",
+  "permissions/title/a.openroom.state.set": "Write to room state",
+  "permissions/desc/a.openroom.state.set": "Allows the application to write to state in rooms that you open with it, except for join rule, membership, power level, history visibility, invite, guest access, server ACL, and upgrade state.",
+
+  "associations/associatewith.{TYPE}": "Associate with '{TYPE}' files"
+}

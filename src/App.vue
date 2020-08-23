@@ -20,4 +20,9 @@ html, body {
   min-width: 2.5em;
   min-height: 2.5em;
 }
+
+.btn.circle-btn {
+  padding: 0.375rem;
+  line-height: 1;
+}
 </style>
