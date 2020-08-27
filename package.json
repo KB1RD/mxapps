@@ -5,7 +5,8 @@
     "type": "git",
     "url": "https://github.com/kb1rd/mxapps.git"
   },
-  "homepage": "https://github.com/kb1rd/mxapps",
+  "homepage": "https://docs.mxapps.kb1rd.net/",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "destroy-cache": "rm -rf node_modules/.cache",
     "serve": "yarn run destroy-cache; vue-cli-service serve",
