@@ -1,4 +1,9 @@
-# matrix-apps
+# mxapps
+
+> A multi-account Matrix client that allows you to authorize webapps to access
+parts of your account, designed with collaboration in mind.
+
+For more information, see the [documentation site.](https://docs.mxapps.kb1rd.net/)
 
 ## Project setup
 ```
