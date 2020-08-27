@@ -5,7 +5,7 @@
     :visible="true"
     @change="(v) => v === false ? $emit('exit') : undefined"
     ok-title="Add"
-    :ok-disabled="error || !response"
+    :ok-disabled="Boolean(error || !response)"
     :busy="busy"
     @ok="addApp"
   >

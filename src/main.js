@@ -65,6 +65,7 @@ Vue.mixin({
             Object.assign(self, { [to]: value })
           }
         } catch (e) {
+          console.warn('Caught error populating component RPC data', e)
           Object.assign(self, { [to]: err })
         }
       })()

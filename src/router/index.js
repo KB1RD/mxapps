@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import Linkback from '../views/Linkback'
+
 import LoginDialog from '../views/login/LoginDialog'
 import AccountSelector from '../views/login/AccountSelector'
 import NewAccount from '../views/login/NewAccount'
@@ -14,6 +16,10 @@ import { state } from '../worker-link'
 Vue.use(VueRouter)
 
 const routes = [
+  {
+    path: '/_linkback/:token',
+    component: Linkback
+  },
   {
     path: '/',
     component: SidebarView,

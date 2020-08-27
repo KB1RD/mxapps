@@ -10,7 +10,7 @@
       <b-form
         inline
         class="my-2 d-flex flex-row"
-        @submit="(e) => { e.preventDefault(); open_manifest = tmp_url }"
+        @submit="(e) => { e.preventDefault(); open_manifest = tmp_url.trim() }"
       >
         <b-input-group class="mb-2 mr-sm-2 mb-sm-0" style="flex-grow: 1;">
           <b-input v-model="tmp_url" required placeholder="App URL"/>
