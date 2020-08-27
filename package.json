@@ -1,7 +1,11 @@
 {
-  "name": "matrix-apps",
+  "name": "mxapps",
   "version": "0.1.0",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kb1rd/mxapps.git"
+  },
+  "homepage": "https://github.com/kb1rd/mxapps",
   "scripts": {
     "destroy-cache": "rm -rf node_modules/.cache",
     "serve": "yarn run destroy-cache; vue-cli-service serve",
