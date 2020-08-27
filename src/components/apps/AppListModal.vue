@@ -20,17 +20,7 @@
       </b-form>
 
       <h2 class="text-muted mt-3">Apps</h2>
-      <p v-if="!apps.length" class="text-muted">
-        You have no apps. Enter the URL above and click "Add" to get started.
-      </p>
-      <b-list-group class="account-list-group">
-        <AppListItem
-          v-for="app in apps"
-          :key="app"
-          :account="account"
-          :id="app"
-        />
-      </b-list-group>
+      <ClickableAppListGroup :account="account"/>
 
       <h2
         v-if="Object.keys(associations).length"
@@ -57,23 +47,17 @@
 </template>
 
 <script>
-import AppListItem from './AppListItem'
+import ClickableAppListGroup from './ClickableAppListGroup'
 import AssociationItem from './AssociationItem'
 import AppAddModal from './AppAddModal'
 
 export default {
-  components: { AppListItem, AssociationItem, AppAddModal },
+  components: { ClickableAppListGroup, AssociationItem, AppAddModal },
   props: {
     account: String,
     value: Boolean
   },
   genbind: {
-    apps: {
-      apply: ['account'],
-      address: (id) =>
-        ['net', 'kb1rd', 'apps', 'v0', id, 'userapp', 'listen'],
-      default: []
-    },
     associations: {
       apply: ['account'],
       address: (id) =>

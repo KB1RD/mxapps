@@ -48,12 +48,22 @@
     </b-card>
 
     <b-modal
+      scrollable
       hide-footer
       title="Open With"
       :visible="Boolean(room_open_with)"
       @hide="room_open_with = undefined"
     >
-      App List Here
+      <ClickableAppListGroup
+        flush
+        :account="id"
+        @appclick="(id) => openRoom(room_open_with, id)"
+      >
+        <template v-slot:noapps-text>
+          You have no apps. To add one, click on the dropdown in the upper
+          right corner and press "Manage Apps."
+        </template>
+      </ClickableAppListGroup>
     </b-modal>
   </div>
 </template>
@@ -63,8 +73,10 @@ import { state } from '@/worker-link'
 // import { BIconPlusCircleFill } from 'bootstrap-vue'
 import { BIconThreeDots } from 'bootstrap-vue'
 
+import ClickableAppListGroup from '../components/apps/ClickableAppListGroup'
+
 export default {
-  components: { /* BIconPlusCircleFill, */ BIconThreeDots },
+  components: { ClickableAppListGroup, BIconThreeDots },
   genbind: {
     rooms: {
       apply: ['id'],
@@ -75,6 +87,7 @@ export default {
   },
   data () {
     return {
+      console,
       room_open_with: undefined,
       ids_busy: []
     }

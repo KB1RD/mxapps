@@ -1,5 +1,9 @@
 <template>
-  <b-list-group-item class="d-flex align-items-center ellipsis-flex-overflow">
+  <b-list-group-item
+    class="d-flex align-items-center ellipsis-flex-overflow"
+    href="#"
+    @click="$emit('appclick', id)"
+  >
     <template v-if="app === 'LOADING'">
       <b-spinner
         style="width: 1rem; height: 1rem;"
