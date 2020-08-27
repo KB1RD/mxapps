@@ -2,7 +2,7 @@
   <div class="gradient-container">
     <SimpleSVG
       id="logo-svg"
-      filepath="/logo/notepad logo.svg"
+      filepath="/logo/apps logo.svg"
       fill="#fff"
       stroke="#fff"
     />
