@@ -10,12 +10,16 @@ export default {
   watch: {
     active () {
       if (this.active) {
+        // IMO, setting up an RPC channel here is too complicated
         const { token } = this.$route.params
         const promise = state.channel.call_obj.net.kb1rd.apps.v0
           .redeemToken[token]()
         promise.then(
           (d) => window.parent.postMessage(['ctx', d, null], '*', [d.port]),
-          (e) => window.parent.postMessage(['ctx', null, e], '*')
+          (e) => {
+            const err_obj = Object.assign({}, e)
+            window.parent.postMessage(['ctx', null, err_obj], '*')
+          }
         )
       }
     }
