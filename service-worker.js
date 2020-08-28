@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.2e4aab2fdfeb3635df2d53eab84e23e3.js"
+  "/precache-manifest.5bdaf2e747fd35d78f2cd7488972007c.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "mxapps"});

@@ -27,6 +27,12 @@ declare type RoomInfo = {
     avatar_url?: string;
     type?: string;
 };
+declare type RoomDetailOpts = {
+    avatar?: {
+        width: number;
+        height: number;
+    };
+};
 interface RemoteV0 {
     getHsUrl: {
         [mxid: string]: () => Promise<string>;
@@ -64,7 +70,7 @@ declare class MatrixInstance {
     readonly parent: ServiceClass;
     readonly account_id: string;
     client: mx.MatrixClient | undefined;
-    readonly room_list: GeneratorListener<mx.Room[]>;
+    readonly room_list: MapGeneratorListener<mx.Room>;
     readonly user_ad: MapGeneratorListener<AccountDataEntry>;
     protected app_list_gen?: AsyncGenerator<string[], void, void>;
     protected readonly app_gens: {
@@ -109,6 +115,7 @@ declare class ServiceClass implements Service {
             height: number;
         };
     }): AsyncGenerator<RoomInfo[], void, void>;
+    listenRoomDetails(account: string, id: string, opts?: RoomDetailOpts): AsyncGenerator<RoomInfo | undefined, void, void>;
     sendAccountData(id: string, type: string, data: AccountDataType): Promise<void>;
     listenAccountDataKeys(id: string): AsyncGenerator<string[], void, void>;
     listenAccountData(id: string, type: string): AsyncGenerator<AccountDataEntry, void, void>;

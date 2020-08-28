@@ -59708,6 +59708,25 @@ var MapGeneratorListener = /*#__PURE__*/function () {
     get: function get() {
       // eslint-disable-next-line
       var self = this;
+
+      var setKey = function setKey(key, val) {
+        var prev = self.map[key];
+
+        if (val) {
+          self.map[key] = val;
+        } else {
+          delete self.map[key];
+        }
+
+        if (val !== prev) {
+          if (val ? !prev : prev) {
+            self.pushKeyUpdate();
+          }
+
+          self.pushUpdate(key);
+        }
+      };
+
       return new Proxy(self.map, {
         ownKeys: function ownKeys() {
           return Object.keys(self.map);
@@ -59718,20 +59737,12 @@ var MapGeneratorListener = /*#__PURE__*/function () {
         get: function get(target, key) {
           return self.map[key];
         },
+        deleteProperty: function deleteProperty(target, key) {
+          setKey(key, undefined);
+          return true;
+        },
         set: function set(target, key, val) {
-          var prev = self.map[key];
-
-          if (val) {
-            self.map[key] = val;
-          } else {
-            delete self.map[key];
-          }
-
-          if (val ? !prev : prev) {
-            self.pushKeyUpdate();
-          }
-
-          self.pushUpdate(key);
+          setKey(key, val);
           return true;
         }
       });
@@ -61599,11 +61610,14 @@ var mxbindings_permissions = (_mxbindings_permissio = {}, _babel_runtime_helpers
   inherits: []
 }), _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(_mxbindings_permissio, 'a.openroom.displayinfo', {
   grantOn: function grantOn(map, _ref) {
-    var room_id = _ref.room_id;
+    var room_id = _ref.room_id,
+        account_id = _ref.account_id;
 
     if (!room_id) {
       throw new TypeError('Tried to grant room permissions in context without room');
     }
+
+    map.put([].concat(mxb0_base, [account_id, 'room', room_id, 'listenDetails']), rpcchannel__WEBPACK_IMPORTED_MODULE_1__["AccessPolicy"].ALLOW);
   },
   inherits: []
 }), _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(_mxbindings_permissio, 'a.openroom.state.get', {
@@ -61625,7 +61639,7 @@ var mxbindings_permissions = (_mxbindings_permissio = {}, _babel_runtime_helpers
     set(rpcchannel__WEBPACK_IMPORTED_MODULE_1__["AccessPolicy"].DENY, 'm.room.third_party_invite');
     set(rpcchannel__WEBPACK_IMPORTED_MODULE_1__["AccessPolicy"].DENY, 'm.room.server_acl');
   },
-  inherits: []
+  inherits: ['a.openroom.displayinfo']
 }), _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_0___default()(_mxbindings_permissio, 'a.openroom.state.set', {
   grantOn: function grantOn(map, _ref3) {
     var account_id = _ref3.account_id,
@@ -61731,7 +61745,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _dec11, _dec12, _dec13, _dec14, _dec15, _dec16, _dec17, _dec18, _dec19, _dec20, _dec21, _dec22, _dec23, _dec24, _dec25, _class, _temp;
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _dec11, _dec12, _dec13, _dec14, _dec15, _dec16, _dec17, _dec18, _dec19, _dec20, _dec21, _dec22, _dec23, _dec24, _dec25, _dec26, _dec27, _dec28, _class, _temp;
 
 
 
@@ -61764,6 +61778,27 @@ var accountCredentialSchema = {
   required: ['mxid', 'token', 'hs']
 };
 
+var getRoomType = function getRoomType(r) {
+  var _r$getLiveTimeline$ge, _r$getLiveTimeline$ge2, _r$getLiveTimeline$ge3;
+
+  var type = (_r$getLiveTimeline$ge = r.getLiveTimeline().getState('f').getStateEvents(_eventtypes__WEBPACK_IMPORTED_MODULE_14__["default"].state_room_type, '')) === null || _r$getLiveTimeline$ge === void 0 ? void 0 : (_r$getLiveTimeline$ge2 = _r$getLiveTimeline$ge.event) === null || _r$getLiveTimeline$ge2 === void 0 ? void 0 : (_r$getLiveTimeline$ge3 = _r$getLiveTimeline$ge2.content) === null || _r$getLiveTimeline$ge3 === void 0 ? void 0 : _r$getLiveTimeline$ge3.type;
+  return typeof type === 'string' ? type : undefined;
+};
+
+var mapToAppDetails = function mapToAppDetails(r, instance, opts) {
+  var _opts$avatar, _opts$avatar2;
+
+  return {
+    id: r.roomId,
+    name: r.name,
+    canon_alias: r.getCanonicalAlias() || undefined,
+    avatar_url: r.getAvatarUrl( // Can't be undefined since room list is made blank when there's no
+    // client set up
+    instance.client.getHomeserverUrl(), ((_opts$avatar = opts.avatar) === null || _opts$avatar === void 0 ? void 0 : _opts$avatar.width) || 256, ((_opts$avatar2 = opts.avatar) === null || _opts$avatar2 === void 0 ? void 0 : _opts$avatar2.height) || 256, 'scale', false) || undefined,
+    type: getRoomType(r) || undefined
+  };
+};
+
 var MatrixInstance = /*#__PURE__*/function () {
   /**
    * List of user's rooms
@@ -61777,7 +61812,7 @@ var MatrixInstance = /*#__PURE__*/function () {
 
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_6___default()(this, "client", void 0);
 
-    _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_6___default()(this, "room_list", new _generatorlistener__WEBPACK_IMPORTED_MODULE_16__["GeneratorListener"]([]));
+    _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_6___default()(this, "room_list", new _generatorlistener__WEBPACK_IMPORTED_MODULE_16__["MapGeneratorListener"]());
 
     _babel_runtime_helpers_defineProperty__WEBPACK_IMPORTED_MODULE_6___default()(this, "user_ad", new _generatorlistener__WEBPACK_IMPORTED_MODULE_16__["MapGeneratorListener"]());
 
@@ -61829,14 +61864,30 @@ var MatrixInstance = /*#__PURE__*/function () {
   }, {
     key: "_setupRoomList",
     value: function _setupRoomList() {
-      var _this3 = this;
+      var _this4 = this;
 
       if (!this.client) {
         throw new TypeError('Client undefined');
       }
 
       var updateRooms = function updateRooms() {
-        _this3.room_list.value = _this3.client.getRooms();
+        var rooms = _this4.client.getRooms();
+
+        var ids = new Set();
+        rooms.forEach(function (room) {
+          if (_this4.room_list.value[room.roomId] === room) {
+            _this4.room_list.pushUpdate(room.roomId);
+          } else {
+            _this4.room_list.value[room.roomId] = room;
+          }
+
+          ids.add(room.roomId);
+        });
+        Object.keys(_this4.room_list.value).forEach(function (id) {
+          if (!ids.has(id)) {
+            delete _this4.room_list.value[id];
+          }
+        });
       };
 
       this.client.on('Room', updateRooms);
@@ -61863,32 +61914,32 @@ var MatrixInstance = /*#__PURE__*/function () {
   }, {
     key: "_setupAppAdUpdater",
     value: function _setupAppAdUpdater() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.app_list_gen = this.parent.apps_svc.listenApps(this.account_id);
       Object(_utils__WEBPACK_IMPORTED_MODULE_18__["onGenerate"])(this.app_list_gen, function (apps) {
-        Object.keys(_this4.app_gens).forEach(function (old) {
+        Object.keys(_this5.app_gens).forEach(function (old) {
           if (!apps.includes(old)) {
-            _this4.app_gens[old].detailgen["return"]();
+            _this5.app_gens[old].detailgen["return"]();
 
-            _this4.app_gens[old].permgen["return"]();
+            _this5.app_gens[old].permgen["return"]();
 
-            delete _this4.app_gens[old];
+            delete _this5.app_gens[old];
 
-            _this4.onAppUpdate(old, true);
+            _this5.onAppUpdate(old, true);
           }
         });
         apps.forEach(function (app) {
-          if (!_this4.app_gens[app]) {
-            _this4.app_gens[app] = {
-              detailgen: _this4.parent.apps_svc.listenAppDetails(_this4.account_id, app),
-              permgen: _this4.parent.apps_svc.listenPermissions(_this4.account_id, app)
+          if (!_this5.app_gens[app]) {
+            _this5.app_gens[app] = {
+              detailgen: _this5.parent.apps_svc.listenAppDetails(_this5.account_id, app),
+              permgen: _this5.parent.apps_svc.listenPermissions(_this5.account_id, app)
             };
-            Object(_utils__WEBPACK_IMPORTED_MODULE_18__["onGenerate"])(_this4.app_gens[app].detailgen, function () {
-              return _this4.onAppUpdate(app, false);
+            Object(_utils__WEBPACK_IMPORTED_MODULE_18__["onGenerate"])(_this5.app_gens[app].detailgen, function () {
+              return _this5.onAppUpdate(app, false);
             });
-            Object(_utils__WEBPACK_IMPORTED_MODULE_18__["onGenerate"])(_this4.app_gens[app].permgen, function () {
-              return _this4.onAppUpdate(app, false);
+            Object(_utils__WEBPACK_IMPORTED_MODULE_18__["onGenerate"])(_this5.app_gens[app].permgen, function () {
+              return _this5.onAppUpdate(app, false);
             });
           }
         });
@@ -61897,7 +61948,7 @@ var MatrixInstance = /*#__PURE__*/function () {
   }, {
     key: "_setupAccountData",
     value: function _setupAccountData() {
-      var _this5 = this;
+      var _this6 = this;
 
       if (!this.client) {
         throw new TypeError('Client undefined');
@@ -61905,7 +61956,7 @@ var MatrixInstance = /*#__PURE__*/function () {
 
       this.client.on('accountData', function (event) {
         var type = event.getType();
-        _this5.user_ad.value[type] = event.event.content; // Process app AD
+        _this6.user_ad.value[type] = event.event.content; // Process app AD
 
         /* if (type.startsWith('net.kb1rd.app.v0.')) {
           this._processAppConfig(type.substr(17), event.event.content)
@@ -61928,12 +61979,14 @@ var MatrixInstance = /*#__PURE__*/function () {
   }, {
     key: "stopClient",
     value: function stopClient() {
-      var _this6 = this;
+      var _this7 = this;
 
       if (this.client) {
         this.client.stopClient();
         delete this.client;
-        this.room_list.value = [];
+        Object.keys(this.room_list.value).forEach(function (id) {
+          return delete _this7.room_list.value[id];
+        });
       }
 
       if (this.app_list_gen) {
@@ -61941,11 +61994,11 @@ var MatrixInstance = /*#__PURE__*/function () {
       }
 
       Object.keys(this.app_gens).forEach(function (k) {
-        _this6.app_gens[k].detailgen["return"]();
+        _this7.app_gens[k].detailgen["return"]();
 
-        _this6.app_gens[k].permgen["return"]();
+        _this7.app_gens[k].permgen["return"]();
 
-        delete _this6.app_gens[k];
+        delete _this7.app_gens[k];
       });
     }
   }, {
@@ -62009,7 +62062,36 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
       }
     }
   }
-}), _dec18 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'account_data', undefined, 'set']), _dec19 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand', 'expand']), _dec20 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["EnforceMethodArgSchema"]({
+}), _dec18 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'room', undefined, 'listenDetails']), _dec19 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand', 'expand']), _dec20 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["EnforceMethodArgSchema"]({
+  type: 'array',
+  items: [{
+    type: 'string'
+  }, {
+    type: 'string'
+  }],
+  maxItems: 2,
+  additionalItems: {
+    type: 'object',
+    properties: {
+      avatar: {
+        type: 'object',
+        properties: {
+          width: {
+            type: 'number',
+            minimum: 1,
+            maximum: 4096
+          },
+          height: {
+            type: 'number',
+            minimum: 1,
+            maximum: 4096
+          }
+        },
+        required: ['width', 'height']
+      }
+    }
+  }
+}), _dec21 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'account_data', undefined, 'set']), _dec22 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand', 'expand']), _dec23 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["EnforceMethodArgSchema"]({
   type: 'array',
   items: [{
     type: 'string'
@@ -62017,7 +62099,7 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
     type: 'string'
   }],
   minItems: 3
-}), _dec21 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'account_data', 'listen']), _dec22 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand']), _dec23 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'account_data', undefined, 'listen']), _dec24 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand', 'expand']), _dec25 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["EnforceMethodArgSchema"]({
+}), _dec24 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'account_data', 'listen']), _dec25 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand']), _dec26 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"](['v0', undefined, 'account_data', undefined, 'listen']), _dec27 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RemapArguments"](['drop', 'expand', 'expand']), _dec28 = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["EnforceMethodArgSchema"]({
   type: 'array',
   items: [{
     type: 'string'
@@ -62251,7 +62333,7 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
     key: "start",
     value: function () {
       var _start = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(account_id) {
-        var _this7 = this;
+        var _this8 = this;
 
         var _this$state_listeners, val, account, cred, instance, client;
 
@@ -62334,20 +62416,20 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
                   switch (state) {
                     case 'PREPARED':
                     case 'SYNCING':
-                      _this7.state_listeners[account_id].value = 'ACTIVE';
+                      _this8.state_listeners[account_id].value = 'ACTIVE';
                       return;
 
                     case 'ERROR':
                     case 'RECONNECTING':
-                      _this7.state_listeners[account_id].value = 'OFFLINE';
+                      _this8.state_listeners[account_id].value = 'OFFLINE';
                       return;
 
                     case 'CATCHUP':
-                      _this7.state_listeners[account_id].value = 'STARTING';
+                      _this8.state_listeners[account_id].value = 'STARTING';
                       return;
 
                     case 'STOPPED':
-                      _this7.state_listeners[account_id].value = 'INACTIVE';
+                      _this8.state_listeners[account_id].value = 'INACTIVE';
                       return;
                   }
                 });
@@ -62668,43 +62750,27 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
                 _didIteratorError2 = false;
                 _context10.prev = 3;
                 _loop = /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _loop() {
-                  var rooms, getType;
+                  var rooms;
                   return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _loop$(_context9) {
                     while (1) {
                       switch (_context9.prev = _context9.next) {
                         case 0:
                           rooms = _value2;
-
-                          getType = function getType(r) {
-                            var _r$getLiveTimeline$ge, _r$getLiveTimeline$ge2, _r$getLiveTimeline$ge3;
-
-                            var type = (_r$getLiveTimeline$ge = r.getLiveTimeline().getState('f').getStateEvents(_eventtypes__WEBPACK_IMPORTED_MODULE_14__["default"].state_room_type, '')) === null || _r$getLiveTimeline$ge === void 0 ? void 0 : (_r$getLiveTimeline$ge2 = _r$getLiveTimeline$ge.event) === null || _r$getLiveTimeline$ge2 === void 0 ? void 0 : (_r$getLiveTimeline$ge3 = _r$getLiveTimeline$ge2.content) === null || _r$getLiveTimeline$ge3 === void 0 ? void 0 : _r$getLiveTimeline$ge3.type;
-                            return typeof type === 'string' ? type : undefined;
-                          };
-
-                          _context9.next = 4;
-                          return rooms.map(function (r) {
-                            var _opts$avatar, _opts$avatar2;
-
-                            return {
-                              id: r.roomId,
-                              name: r.name,
-                              canon_alias: r.getCanonicalAlias() || undefined,
-                              avatar_url: r.getAvatarUrl( // Can't be undefined since room list is made blank when there's no
-                              // client set up
-                              instance.client.getHomeserverUrl(), ((_opts$avatar = opts.avatar) === null || _opts$avatar === void 0 ? void 0 : _opts$avatar.width) || 256, ((_opts$avatar2 = opts.avatar) === null || _opts$avatar2 === void 0 ? void 0 : _opts$avatar2.height) || 256, 'scale', false) || undefined,
-                              type: getType(r) || undefined
-                            };
+                          _context9.next = 3;
+                          return Object.keys(rooms).map(function (k) {
+                            return rooms[k];
+                          }).map(function (room) {
+                            return mapToAppDetails(room, instance, opts);
                           });
 
-                        case 4:
+                        case 3:
                         case "end":
                           return _context9.stop();
                       }
                     }
                   }, _loop);
                 });
-                _iterator2 = _babel_runtime_helpers_asyncIterator__WEBPACK_IMPORTED_MODULE_9___default()(instance.room_list.generate());
+                _iterator2 = _babel_runtime_helpers_asyncIterator__WEBPACK_IMPORTED_MODULE_9___default()(instance.room_list.generateMap());
 
               case 6:
                 _context10.next = 8;
@@ -62778,34 +62844,126 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
       }))();
     }
   }, {
-    key: "sendAccountData",
-    value: function () {
-      var _sendAccountData = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee10(id, type, data) {
-        var _this$getInstance, client;
+    key: "listenRoomDetails",
+    value: function listenRoomDetails(account, id) {
+      var _this3 = this;
+
+      var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      return _babel_runtime_helpers_wrapAsyncGenerator__WEBPACK_IMPORTED_MODULE_8___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee10() {
+        var instance, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, _value3, room;
 
         return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee10$(_context11) {
           while (1) {
             switch (_context11.prev = _context11.next) {
               case 0:
+                instance = _this3.getInstance(account);
+                _iteratorNormalCompletion3 = true;
+                _didIteratorError3 = false;
+                _context11.prev = 3;
+                _iterator3 = _babel_runtime_helpers_asyncIterator__WEBPACK_IMPORTED_MODULE_9___default()(instance.room_list.generate(id));
+
+              case 5:
+                _context11.next = 7;
+                return _babel_runtime_helpers_awaitAsyncGenerator__WEBPACK_IMPORTED_MODULE_7___default()(_iterator3.next());
+
+              case 7:
+                _step3 = _context11.sent;
+                _iteratorNormalCompletion3 = _step3.done;
+                _context11.next = 11;
+                return _babel_runtime_helpers_awaitAsyncGenerator__WEBPACK_IMPORTED_MODULE_7___default()(_step3.value);
+
+              case 11:
+                _value3 = _context11.sent;
+
+                if (_iteratorNormalCompletion3) {
+                  _context11.next = 19;
+                  break;
+                }
+
+                room = _value3;
+                _context11.next = 16;
+                return room && mapToAppDetails(room, instance, opts);
+
+              case 16:
+                _iteratorNormalCompletion3 = true;
+                _context11.next = 5;
+                break;
+
+              case 19:
+                _context11.next = 25;
+                break;
+
+              case 21:
+                _context11.prev = 21;
+                _context11.t0 = _context11["catch"](3);
+                _didIteratorError3 = true;
+                _iteratorError3 = _context11.t0;
+
+              case 25:
+                _context11.prev = 25;
+                _context11.prev = 26;
+
+                if (!(!_iteratorNormalCompletion3 && _iterator3["return"] != null)) {
+                  _context11.next = 30;
+                  break;
+                }
+
+                _context11.next = 30;
+                return _babel_runtime_helpers_awaitAsyncGenerator__WEBPACK_IMPORTED_MODULE_7___default()(_iterator3["return"]());
+
+              case 30:
+                _context11.prev = 30;
+
+                if (!_didIteratorError3) {
+                  _context11.next = 33;
+                  break;
+                }
+
+                throw _iteratorError3;
+
+              case 33:
+                return _context11.finish(30);
+
+              case 34:
+                return _context11.finish(25);
+
+              case 35:
+              case "end":
+                return _context11.stop();
+            }
+          }
+        }, _callee10, null, [[3, 21, 25, 35], [26,, 30, 34]]);
+      }))();
+    }
+  }, {
+    key: "sendAccountData",
+    value: function () {
+      var _sendAccountData = _babel_runtime_helpers_asyncToGenerator__WEBPACK_IMPORTED_MODULE_1___default()( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee11(id, type, data) {
+        var _this$getInstance, client;
+
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee11$(_context12) {
+          while (1) {
+            switch (_context12.prev = _context12.next) {
+              case 0:
                 _this$getInstance = this.getInstance(id), client = _this$getInstance.client;
 
                 if (client) {
-                  _context11.next = 3;
+                  _context12.next = 3;
                   break;
                 }
 
                 throw new TypeError('Client not set up');
 
               case 3:
-                _context11.next = 5;
+                _context12.next = 5;
                 return client.setAccountData(type, data);
 
               case 5:
               case "end":
-                return _context11.stop();
+                return _context12.stop();
             }
           }
-        }, _callee10, this);
+        }, _callee11, this);
       }));
 
       function sendAccountData(_x13, _x14, _x15) {
@@ -62827,12 +62985,12 @@ var ServiceClass = (_dec = rpcchannel__WEBPACK_IMPORTED_MODULE_10__["RpcAddress"
   }]);
 
   return ServiceClass;
-}(), _temp), (_babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "getHsUrl", [_dec, _dec2], Object.getOwnPropertyDescriptor(_class.prototype, "getHsUrl"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "fromToken", [_dec3, _dec4, _dec5], Object.getOwnPropertyDescriptor(_class.prototype, "fromToken"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "fromPass", [_dec6, _dec7, _dec8], Object.getOwnPropertyDescriptor(_class.prototype, "fromPass"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "start", [_dec9, _dec10], Object.getOwnPropertyDescriptor(_class.prototype, "start"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "stop", [_dec11, _dec12], Object.getOwnPropertyDescriptor(_class.prototype, "stop"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenUserState", [_dec13, _dec14], Object.getOwnPropertyDescriptor(_class.prototype, "listenUserState"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenRoomList", [_dec15, _dec16, _dec17], Object.getOwnPropertyDescriptor(_class.prototype, "listenRoomList"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "sendAccountData", [_dec18, _dec19, _dec20], Object.getOwnPropertyDescriptor(_class.prototype, "sendAccountData"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenAccountDataKeys", [_dec21, _dec22], Object.getOwnPropertyDescriptor(_class.prototype, "listenAccountDataKeys"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenAccountData", [_dec23, _dec24, _dec25], Object.getOwnPropertyDescriptor(_class.prototype, "listenAccountData"), _class.prototype)), _class));
+}(), _temp), (_babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "getHsUrl", [_dec, _dec2], Object.getOwnPropertyDescriptor(_class.prototype, "getHsUrl"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "fromToken", [_dec3, _dec4, _dec5], Object.getOwnPropertyDescriptor(_class.prototype, "fromToken"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "fromPass", [_dec6, _dec7, _dec8], Object.getOwnPropertyDescriptor(_class.prototype, "fromPass"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "start", [_dec9, _dec10], Object.getOwnPropertyDescriptor(_class.prototype, "start"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "stop", [_dec11, _dec12], Object.getOwnPropertyDescriptor(_class.prototype, "stop"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenUserState", [_dec13, _dec14], Object.getOwnPropertyDescriptor(_class.prototype, "listenUserState"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenRoomList", [_dec15, _dec16, _dec17], Object.getOwnPropertyDescriptor(_class.prototype, "listenRoomList"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenRoomDetails", [_dec18, _dec19, _dec20], Object.getOwnPropertyDescriptor(_class.prototype, "listenRoomDetails"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "sendAccountData", [_dec21, _dec22, _dec23], Object.getOwnPropertyDescriptor(_class.prototype, "sendAccountData"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenAccountDataKeys", [_dec24, _dec25], Object.getOwnPropertyDescriptor(_class.prototype, "listenAccountDataKeys"), _class.prototype), _babel_runtime_helpers_applyDecoratedDescriptor__WEBPACK_IMPORTED_MODULE_2___default()(_class.prototype, "listenAccountData", [_dec26, _dec27, _dec28], Object.getOwnPropertyDescriptor(_class.prototype, "listenAccountData"), _class.prototype)), _class));
 var MatrixService = Object(_service__WEBPACK_IMPORTED_MODULE_15__["prefixServiceRpc"])({
   id: ['net', 'kb1rd', 'mxbindings'],
   service: ServiceClass,
   versions: [{
-    version: [0, 2, 0]
+    version: [0, 3, 0]
   }]
 });
 /* harmony default export */ __webpack_exports__["default"] = (MatrixService);

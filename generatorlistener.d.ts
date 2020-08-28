@@ -1,6 +1,6 @@
 declare class GeneratorListener<T> {
     protected _value: T;
-    protected callbacks: Set<() => void>;
+    callbacks: Set<() => void>;
     constructor(_value: T);
     pushUpdate(): void;
     generate(): AsyncGenerator<T, void, void>;
