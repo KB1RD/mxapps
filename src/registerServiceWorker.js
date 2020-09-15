@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 
-import { register } from 'register-service-worker'
+require('offline-plugin/runtime').install()
+
+/* import { register } from 'register-service-worker'
 
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}service-worker.js`, {
@@ -29,4 +31,4 @@ if (process.env.NODE_ENV === 'production') {
       console.error('Error during service worker registration:', error)
     }
   })
-}
+} */

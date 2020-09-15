@@ -2,7 +2,7 @@
   <div class="gradient-container">
     <SimpleSVG
       id="logo-svg"
-      filepath="/logo/apps logo.svg"
+      filepath="/img/logo/apps logo.svg"
       fill="#fff"
       stroke="#fff"
     />
@@ -21,6 +21,7 @@
 
       <router-view v-else/>
     </b-card>
+    <p class="version-text">v{{ version }}</p>
   </div>
 </template>
 
@@ -29,11 +30,14 @@ import { SimpleSVG } from 'vue-simple-svg'
 
 import { state } from '@/worker-link'
 
+import { version } from '../../../package.json'
+
 export default {
   components: { SimpleSVG },
   data () {
     return {
-      workerstate: state
+      workerstate: state,
+      version
     }
   }
 }
@@ -41,20 +45,37 @@ export default {
 
 <style>
 .gradient-container {
+  position: relative;
   width: 100%;
   min-height: 100%;
 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 20px;
+}
+.gradient-container::before {
+  content: "";
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  width: 100%;
+  height: 100%;
   background-image: linear-gradient(
     170deg,
     #2c4be8 0%,
     #352ce8 60%,
     #d52ce8 150%
   );
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+}
+.gradient-container .version-text {
+  position: absolute;
+  bottom: 0px;
+  margin: auto;
+  color: white;
 }
 #signin-dialog {
   margin: 10px;

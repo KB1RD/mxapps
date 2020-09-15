@@ -2,6 +2,9 @@
 node_modules
 /dist
 
+# I use this for local self-signed certs so I can test the service worker
+.ssl
+
 # local env files
 .env.local
 .env.*.local
