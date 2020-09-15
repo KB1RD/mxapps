@@ -116,15 +116,34 @@ export default {
           .userapp[app]
           .entry['net.kb1rd.openroom']
           .setup({ room_id: room })
+        const resp_data = await state.channel.call_obj.net.kb1rd.apps.v0
+          .redeemToken[token]()
 
-        const return_path = self.$router.resolve(`/_linkback/${token}`).href
-        const url = entry.to.replace(
-          '{{return}}',
-          encodeURIComponent(
-            window.location.origin + window.location.pathname + return_path
-          )
+        const new_win = window.open(
+          entry.to.replace(
+            '{{return}}',
+            encodeURIComponent('about:blank')
+          ),
+          '_blank',
+          // If someone is unfortunate enough to have a browser that actually
+          // opens a new window, this should make it suck a little less
+          'menubar,toolbar,location,status,resizable,scrollbars'
         )
-        window.open(url, '_blank')
+
+        const timeout = window.setTimeout(() => {
+          window.removeEventListener('message', func)
+          console.warn(`App ${app} never loaded`)
+        }, 30000)
+        const func = ({ data, source }) => {
+          if (data[0] === 'ready' && source === new_win) {
+            console.log(`Responding to opened app ${app}`)
+            new_win.postMessage(['ctx', resp_data], '*', [resp_data.port])
+
+            window.removeEventListener('message', func)
+            window.clearTimeout(timeout)
+          }
+        }
+        window.addEventListener('message', func)
       })()
 
       this.ids_busy.push(room)
