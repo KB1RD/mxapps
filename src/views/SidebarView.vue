@@ -13,7 +13,7 @@
         <b-navbar-brand href="#">
           <SimpleSVG
             id="logo-svg"
-            filepath="/logo/notepad logo.svg"
+            filepath="/img/logo/apps logo.svg"
             fill="#fff"
             stroke="#fff"
             height="50px"

@@ -1,7 +1,7 @@
 <template>
   <b-card-text>
     Software written by Matrix users like you. Check it out on
-    <a href="https://github.com/KB1RD/matrix-notepad">GitHub</a> and come
+    <a href="https://github.com/KB1RD/mxapps">GitHub</a> and come
     chat on
     <a
       href="https://matrix.to/#/#matrix-collaboration:kb1rd.net?via=kb1rd.net&via=matrix.org&via=matrix.geklautecloud.de"

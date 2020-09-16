@@ -14,6 +14,8 @@ module.exports = {
       ]])
     config
       .plugin('offline-plugin')
-      .use(OfflinePlugin)
+      .use(OfflinePlugin, [{
+        responseStrategy: 'network-first'
+      }])
   }
 }
